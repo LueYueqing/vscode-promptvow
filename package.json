@@ -46,7 +46,8 @@
       },
       {
         "command": "promptvow.copyPrompt",
-        "title": "Copy Prompt"
+        "title": "Copy Prompt",
+        "icon": "$(copy)"
       },
       {
         "command": "promptvow.setAsDefaultProject",
@@ -64,7 +65,7 @@
       {
         "command": "promptvow.completeTask",
         "title": "Complete Task",
-        "icon": "$(check)"
+        "icon": "$(check-all)"
       },
       {
         "command": "promptvow.addPrompt",
