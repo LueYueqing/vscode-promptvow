@@ -2,7 +2,7 @@
   "name": "promptvow",
   "displayName": "PromptVow - AI Prompt Manager",
   "description": "智能管理AI编程提示词，提升编程效率",
-  "version": "0.1.3",
+  "version": "0.1.6",
   "engines": {
     "vscode": "^1.75.0"
   },
@@ -82,7 +82,7 @@
       {
         "id": "promptvow-container",
         "title": "PromptVow",
-        "icon": "assets/icons/prompt.png"
+        "icon": "assets/icons/prompt.svg"
       }
       ]
     },
