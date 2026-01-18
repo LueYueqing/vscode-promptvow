@@ -63,10 +63,12 @@ npm run package
 3. 输入你的API Token（从PromptVow网站获取）
 
 ### API地址配置
-默认连接到 `https://promptvow.com`，如需修改：
+默认连接到 `https://promptvow.com`，通常无需修改。
+
+如需使用自定义服务器地址，可以在VS Code设置中修改：
 ```json
 {
-  "promptvow.apiUrl": "https://api.promptvow.com"
+  "promptvow.apiUrl": "https://promptvow.com"
 }
 ```
 
