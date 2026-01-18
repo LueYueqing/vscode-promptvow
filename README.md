@@ -169,7 +169,7 @@ extension/VSCode/
 ## 常见问题
 
 ### Q: 如何获取API Token？
-A: 登录PromptVow网站，在设置页面生成API Token。
+A: 登录[PromptVow网站](https://promptvow.com/pages/api)，在设置页面生成API Token。
 
 ### Q: 提示词如何同步？
 A: 提示词会自动与PromptVow平台同步，确保网络连接正常。
