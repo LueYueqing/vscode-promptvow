@@ -1,0 +1,13 @@
+vscode/**
+.vscode/**
+src/**
+.gitignore
+.vscode-test.js
+**/tsconfig.json
+**/.eslintrc.json
+**/*.map
+**/*.ts
+node_modules/**
+assets/icons/generate-icons.html
+assets/icons/generate-icons.js
+README.md

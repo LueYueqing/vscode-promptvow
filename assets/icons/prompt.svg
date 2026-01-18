@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Chat Bubble -->
+  <path d="M20 20 H80 A10 10 0 0 1 90 30 V70 A10 10 0 0 1 80 80 H30 L10 90 V30 A10 10 0 0 1 20 20 Z" />
+  
+  <!-- Terminal Prompt symbol >_ -->
+  <path d="M35 40 L50 50 L35 60" />
+  <line x1="55" y1="60" x2="70" y2="60" />
+</svg>

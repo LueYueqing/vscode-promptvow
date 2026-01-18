@@ -1,0 +1,228 @@
+{
+  "name": "promptvow",
+  "displayName": "PromptVow - AI Prompt Manager",
+  "description": "智能管理AI编程提示词，提升编程效率",
+  "version": "0.1.3",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other",
+    "Snippets"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "promptvow.showPromptPanel",
+        "title": "Show Prompt Panel",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "promptvow.insertPrompt",
+        "title": "Insert Prompt",
+        "icon": "$(insert)"
+      },
+      {
+        "command": "promptvow.searchPrompts",
+        "title": "Search Prompts",
+        "icon": "$(search)"
+      },
+      {
+        "command": "promptvow.saveSelectionAsPrompt",
+        "title": "Save Selection as Prompt"
+      },
+      {
+        "command": "promptvow.refreshPrompts",
+        "title": "Refresh Prompts",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "promptvow.openPromptEditor",
+        "title": "Open Prompt Editor"
+      },
+      {
+        "command": "promptvow.copyPrompt",
+        "title": "Copy Prompt"
+      },
+      {
+        "command": "promptvow.setAsDefaultProject",
+        "title": "Set as Default Project"
+      },
+      {
+        "command": "promptvow.authenticate",
+        "title": "Authenticate with PromptVow"
+      },
+      {
+        "command": "promptvow.selectProject",
+        "title": "Select Project",
+        "icon": "$(database)"
+      },
+      {
+        "command": "promptvow.completeTask",
+        "title": "Complete Task",
+        "icon": "$(check)"
+      },
+      {
+        "command": "promptvow.addPrompt",
+        "title": "Add Prompt",
+        "icon": "$(add)"
+      },
+      {
+        "command": "promptvow.handleSelectProjectClick",
+        "title": "Select Project"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+      {
+        "id": "promptvow-container",
+        "title": "PromptVow",
+        "icon": "assets/icons/prompt.png"
+      }
+      ]
+    },
+    "views": {
+      "promptvow-container": [
+        {
+          "id": "promptvow.prompts",
+          "name": "Projects"
+        },
+        {
+          "id": "promptvow.projects",
+          "name": "Prompts"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "promptvow.prompts",
+        "contents": "Connect to PromptVow to see your projects."
+      },
+      {
+        "view": "promptvow.projects",
+        "contents": "No prompts found. [Create one](command:promptvow.openPromptEditor) or [Authenticate](command:promptvow.authenticate) first."
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "promptvow.searchPrompts",
+        "key": "ctrl+shift+p",
+        "mac": "cmd+shift+p",
+        "when": "!inQuickOpen"
+      },
+      {
+        "command": "promptvow.insertPrompt",
+        "key": "ctrl+shift+i",
+        "mac": "cmd+shift+i"
+      }
+    ],
+      "menus": {
+      "view/title": [
+          {
+            "command": "promptvow.selectProject",
+            "when": "view == promptvow.prompts",
+            "group": "navigation"
+          },
+          {
+            "command": "promptvow.addPrompt",
+            "when": "view == promptvow.prompts",
+            "group": "navigation"
+          },
+          {
+            "command": "promptvow.refreshPrompts",
+            "when": "view == promptvow.prompts",
+            "group": "navigation"
+          },
+          {
+            "command": "promptvow.refreshPrompts",
+            "when": "view == promptvow.projects",
+            "group": "navigation"
+          },
+          {
+            "command": "promptvow.showPromptPanel",
+            "when": "view == promptvow.prompts",
+            "group": "navigation"
+          }
+        ],
+      "editor/context": [
+        {
+          "command": "promptvow.saveSelectionAsPrompt",
+          "when": "editorHasSelection",
+          "group": "promptvow"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "promptvow.insertPrompt",
+          "when": "editorFocus"
+        },
+        {
+          "command": "promptvow.saveSelectionAsPrompt",
+          "when": "editorHasSelection"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "promptvow.handleSelectProjectClick",
+          "when": "view == promptvow.prompts && viewItem == action",
+          "group": "inline"
+        },
+        {
+          "command": "promptvow.copyPrompt",
+          "when": "view == promptvow.prompts && viewItem == prompt",
+          "group": "promptvow@1"
+        },
+        {
+          "command": "promptvow.completeTask",
+          "when": "view == promptvow.prompts && viewItem == prompt",
+          "group": "promptvow@2"
+        },
+        {
+          "command": "promptvow.setAsDefaultProject",
+          "when": "view == promptvow.prompts && viewItem == project",
+          "group": "promptvow@1"
+        }
+      ]
+    }
+  },
+  "configuration": {
+    "title": "PromptVow",
+    "properties": {
+      "promptvow.apiUrl": {
+        "type": "string",
+        "default": "https://promptvow.com",
+        "description": "PromptVow API 地址"
+      },
+      "promptvow.apiKey": {
+        "type": "string",
+        "default": "",
+        "description": "API 密钥（从 PromptVow 网站获取）"
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.75.0",
+    "@types/node": "18.x",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.45.0",
+    "typescript": "^5.1.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LueYueqing/vscode-promptvow.git"
+  },
+  "publisher": "promptvow"
+}
