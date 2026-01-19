@@ -187,9 +187,12 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "version:patch": "npm version patch",
+    "package": "vsce package",
     "publish:vsce": "powershell -Command \"$env:VSCE_PAT=(Select-String -Path '../../.env.local' -Pattern 'VISUAL_STUDIO_TOKEN=(.*)' | ForEach-Object { $_.Matches.Groups[1].Value }).Trim(); vsce publish --noVerify\"",
     "publish:ovsx": "powershell -Command \"$env:OVSX_PAT=(Select-String -Path '../../.env.local' -Pattern 'OVSXAT=(.*)' | ForEach-Object { $_.Matches.Groups[1].Value }).Trim(); ovsx publish\"",
-    "publish:all": "npm run publish:vsce && npm run publish:ovsx"
+    "publish:github": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-github-release.ps1",
+    "publish:github:pre": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-github-release.ps1 -PreRelease",
+    "publish:all": "npm run publish:vsce && npm run publish:ovsx && npm run publish:github"
   },
   "devDependencies": {
     "@types/vscode": "^1.75.0",
@@ -201,7 +204,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/LueYueqing/vscode-promptvow.git"
+    "url": "git+https://github.com/LueYueqing/vscode-promptvow.git"
   },
   "publisher": "promptvow"
 }
