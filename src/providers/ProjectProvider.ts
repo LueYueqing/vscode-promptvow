@@ -14,7 +14,7 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
   private selectedProjectId: string | null = null;
   private selectedProjectName: string | null = null;
 
-  constructor(private apiClient: ApiClient, private context?: vscode.ExtensionContext) {}
+  constructor(private apiClient: ApiClient, private context?: vscode.ExtensionContext) { }
 
   /**
    * 刷新数据
@@ -29,6 +29,20 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
   async selectProject(projectId: string, projectName?: string): Promise<void> {
     this.selectedProjectId = projectId;
     this.selectedProjectName = projectName || null;
+
+    // 如果没有项目名称，尝试从 API 获取所有项目并匹配名称
+    if (!this.selectedProjectName && this.selectedProjectId) {
+      try {
+        const projects = await this.apiClient.getProjects();
+        const project = projects.find(p => p.id === projectId);
+        if (project) {
+          this.selectedProjectName = project.name;
+        }
+      } catch (error) {
+        console.error('[ProjectProvider] Failed to resolve project name:', error);
+      }
+    }
+
     this.refresh();
   }
 
@@ -45,7 +59,7 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
   async getChildren(element?: ProjectTreeItem): Promise<ProjectTreeItem[]> {
     console.log('[ProjectProvider] getChildren called, element:', element);
     console.log('[ProjectProvider] selectedProjectId:', this.selectedProjectId);
-    
+
     // 如果没有选中项目，提示用户选择项目
     if (!this.selectedProjectId) {
       console.log('[ProjectProvider] No project selected, showing select button');
@@ -66,7 +80,7 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
       const prompts = await this.apiClient.getProjectPrompts(this.selectedProjectId, 'IN_PROGRESS');
       console.log('[ProjectProvider] Received prompts:', prompts);
       console.log('[ProjectProvider] Prompts count:', prompts.length);
-      
+
       // 构建项目信息项
       const projectInfoItem = new ProjectTreeItem({
         id: 'project-info',
@@ -75,7 +89,7 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
         isActionItem: true,
         command: 'promptvow.selectProject'
       }, false, this.selectedProjectId, this.selectedProjectName || undefined);
-      
+
       if (prompts.length === 0) {
         console.log('[ProjectProvider] No prompts found, showing empty message');
         return [
@@ -95,7 +109,7 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
           }, false, this.selectedProjectId, undefined)
         ];
       }
-      
+
       console.log('[ProjectProvider] Mapping prompts to tree items');
       const items = prompts.map(prompt => {
         console.log('[ProjectProvider] Processing prompt:', {
@@ -103,7 +117,7 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
           contentLength: prompt.content?.length,
           status: prompt.status
         });
-        
+
         return new ProjectTreeItem({
           id: prompt.id,
           title: prompt.content ? prompt.content.substring(0, 60) : '无内容', // 只显示内容的前60个字符
@@ -116,9 +130,9 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
           updatedAt: prompt.updatedAt
         }, false, this.selectedProjectId || undefined, prompt.projectName);
       });
-      
+
       console.log('[ProjectProvider] Returning', items.length, 'tree items');
-      
+
       // 在提示词列表后添加"新增提示词"按钮
       const addPromptButton = new ProjectTreeItem({
         id: 'add-prompt',
@@ -127,13 +141,13 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
         isActionItem: true,
         command: 'promptvow.addPrompt'
       }, false, this.selectedProjectId, undefined);
-      
+
       return [projectInfoItem, ...items, addPromptButton];
     } catch (error: any) {
       const errorMessage = error?.message || error?.toString() || 'Unknown error';
       console.error('[ProjectProvider] Failed to load project prompts:', error);
       console.error('[ProjectProvider] Error stack:', error?.stack);
-      
+
       // 检查是否是认证相关的错误
       if (errorMessage.includes('认证') || errorMessage.includes('访问令牌') || errorMessage.includes('401') || errorMessage.includes('403') || errorMessage.includes('unauthorized')) {
         vscode.window.showWarningMessage(
@@ -145,7 +159,7 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
           }
         });
       }
-      
+
       return [
         new ProjectTreeItem({
           id: 'error',
@@ -188,7 +202,7 @@ export class ProjectTreeItem extends vscode.TreeItem {
       this.description = '点击操作';
       this.contextValue = 'action';
       this.commandId = prompt.command;
-      
+
       // 根据不同的操作项设置不同的图标
       if (prompt.command === 'promptvow.selectProject') {
         this.iconPath = new vscode.ThemeIcon('database');
@@ -197,9 +211,9 @@ export class ProjectTreeItem extends vscode.TreeItem {
       } else {
         this.iconPath = new vscode.ThemeIcon('refresh');
       }
-      
+
       this.isActionItem = true;
-      
+
       // 设置点击时执行的命令
       if (prompt.command) {
         this.command = {

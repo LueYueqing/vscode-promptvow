@@ -1,5 +1,10 @@
 # PromptVow VSCode Extension Changelog
 
+## [0.1.12] - 2026-01-19
+- 🚀 **自动化发布**: 成功配置 GitHub Actions，现在支持通过 Git Tag 自动发布到 Open VSX 和 VS Code Marketplace。
+- 🛠️ **流程优化**: 简化了发布流程，实现“一次推送，全网同步”。
+
+
 ## [0.1.2] - 2026-01-18
 
 ### 新增功能

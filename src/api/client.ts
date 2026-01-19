@@ -18,6 +18,9 @@ export class ApiClient {
   }
 
   static getInstance(authManager: AuthManager): ApiClient {
+    if (typeof fetch === 'undefined') {
+      console.warn('[ApiClient] Global fetch is not available. Please upgrade VS Code or ensure your environment supports fetch.');
+    }
     if (!ApiClient.instance) {
       ApiClient.instance = new ApiClient(authManager);
     }
@@ -43,14 +46,14 @@ export class ApiClient {
 
     // 添加认证信息（优先使用手动输入的token，其次使用配置中的API key）
     const token = this.authManager.getToken();
-    
+
     // 调试日志：显示请求详情
     console.log('[ApiClient] 正在调用 getGeneralPrompts:');
     console.log('[ApiClient] Base URL:', this.baseUrl);
     console.log('[ApiClient] Token exists:', !!token);
     console.log('[ApiClient] Token length:', token?.length || 0);
     console.log('[ApiClient] Request URL (before adding key):', url.toString());
-    
+
     if (token) {
       url.searchParams.append('key', token);
       console.log('[ApiClient] Request URL (after adding key):', url.toString());
@@ -112,13 +115,13 @@ export class ApiClient {
 
     // 添加 API Key 参数
     const apiKey = this.authManager.getToken();
-    
+
     // 调试日志
     console.log('[ApiClient] 正在调用 getProjects:');
     console.log('[ApiClient] Token exists:', !!apiKey);
     console.log('[ApiClient] Token length:', apiKey?.length || 0);
     console.log('[ApiClient] Request URL (before adding key):', url.toString());
-    
+
     if (apiKey) {
       url.searchParams.append('key', apiKey);
       console.log('[ApiClient] Request URL (after adding key):', url.toString());
@@ -156,7 +159,7 @@ export class ApiClient {
 
     // 添加 API Key 参数
     const apiKey = this.authManager.getToken();
-    
+
     // 调试日志
     console.log('[ApiClient] 正在调用 getProjectPrompts:');
     console.log('[ApiClient] Project ID:', projectId);
@@ -164,7 +167,7 @@ export class ApiClient {
     console.log('[ApiClient] Token exists:', !!apiKey);
     console.log('[ApiClient] Token length:', apiKey?.length || 0);
     console.log('[ApiClient] Request URL (before adding key):', url.toString());
-    
+
     if (apiKey) {
       url.searchParams.append('key', apiKey);
       console.log('[ApiClient] Request URL (after adding key):', url.toString());
@@ -191,7 +194,7 @@ export class ApiClient {
     const rawData = await response.json();
     console.log('[ApiClient] getProjectPrompts Raw response:', rawData);
     console.log('[ApiClient] getProjectPrompts Raw response type:', Array.isArray(rawData) ? 'array' : typeof rawData);
-    
+
     // 检查返回的数据格式
     if (Array.isArray(rawData)) {
       console.log('[ApiClient] Response is an array, returning directly');

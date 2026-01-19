@@ -2,7 +2,8 @@
   "name": "promptvow",
   "displayName": "PromptVow - AI Prompt Manager",
   "description": "智能管理AI编程提示词，提升编程效率",
-  "version": "0.1.7",
+  "version": "0.1.12",
+  "icon": "assets/icons/prompt.png",
   "engines": {
     "vscode": "^1.75.0"
   },
@@ -79,35 +80,28 @@
     ],
     "viewsContainers": {
       "activitybar": [
-      {
-        "id": "promptvow-container",
-        "title": "PromptVow",
-        "icon": "assets/icons/prompt.svg"
-      }
+        {
+          "id": "promptvow-container",
+          "title": "PromptVow",
+          "icon": "assets/icons/prompt.svg"
+        }
       ]
     },
     "views": {
       "promptvow-container": [
         {
-          "id": "promptvow.prompts",
-          "name": "Projects"
+          "type": "webview",
+          "id": "promptvow.activeProject",
+          "name": "Active Project"
         },
         {
-          "id": "promptvow.projects",
-          "name": "Prompts"
+          "type": "webview",
+          "id": "promptvow.library",
+          "name": "Prompts Library"
         }
       ]
     },
-    "viewsWelcome": [
-      {
-        "view": "promptvow.prompts",
-        "contents": "Welcome to PromptVow!\n\n[Authenticate](command:promptvow.authenticate) to connect your account and manage your projects."
-      },
-      {
-        "view": "promptvow.projects",
-        "contents": "Welcome to PromptVow!\n\n[Authenticate](command:promptvow.authenticate) to connect your account and manage your prompts."
-      }
-    ],
+    "viewsWelcome": [],
     "keybindings": [
       {
         "command": "promptvow.searchPrompts",
@@ -121,29 +115,24 @@
         "mac": "cmd+shift+i"
       }
     ],
-      "menus": {
+    "menus": {
       "view/title": [
-          {
-            "command": "promptvow.addPrompt",
-            "when": "view == promptvow.prompts",
-            "group": "navigation"
-          },
-          {
-            "command": "promptvow.refreshPrompts",
-            "when": "view == promptvow.prompts",
-            "group": "navigation"
-          },
-          {
-            "command": "promptvow.refreshPrompts",
-            "when": "view == promptvow.projects",
-            "group": "navigation"
-          },
-          {
-            "command": "promptvow.showPromptPanel",
-            "when": "view == promptvow.prompts",
-            "group": "navigation"
-          }
-        ],
+        {
+          "command": "promptvow.addPrompt",
+          "when": "view == promptvow.prompts",
+          "group": "navigation"
+        },
+        {
+          "command": "promptvow.refreshPrompts",
+          "when": "view == promptvow.prompts",
+          "group": "navigation"
+        },
+        {
+          "command": "promptvow.refreshPrompts",
+          "when": "view == promptvow.activeProject || view == promptvow.library",
+          "group": "navigation"
+        }
+      ],
       "editor/context": [
         {
           "command": "promptvow.saveSelectionAsPrompt",
@@ -163,24 +152,14 @@
       ],
       "view/item/context": [
         {
-          "command": "promptvow.handleSelectProjectClick",
-          "when": "view == promptvow.prompts && viewItem == action",
-          "group": "inline"
-        },
-        {
           "command": "promptvow.copyPrompt",
-          "when": "view == promptvow.prompts && viewItem == prompt",
+          "when": "view == promptvow.library && viewItem == prompt",
           "group": "promptvow@1"
         },
         {
           "command": "promptvow.completeTask",
-          "when": "view == promptvow.prompts && viewItem == prompt",
+          "when": "view == promptvow.library && viewItem == prompt",
           "group": "promptvow@2"
-        },
-        {
-          "command": "promptvow.setAsDefaultProject",
-          "when": "view == promptvow.prompts && viewItem == project",
-          "group": "promptvow@1"
         }
       ]
     }
