@@ -4,6 +4,7 @@
   "description": "智能管理AI编程提示词，提升编程效率",
   "version": "0.1.18",
   "icon": "assets/icons/prompt.png",
+  "homepage": "https://promptvow.com",
   "engines": {
     "vscode": "^1.75.0"
   },
