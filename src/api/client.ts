@@ -263,15 +263,71 @@ export class ApiClient {
   }
 
   /**
-   * 完成任务 - 将提示词状态设置为COMPLETED
+   * 完成任务 - 项目提示词
    */
   async completeTask(promptId: string): Promise<Prompt> {
-    console.log('[ApiClient] 完成任务，promptId:', promptId);
+    console.log('[ApiClient] 完成项目任务，promptId:', promptId);
     return this.updatePrompt(promptId, { status: 'COMPLETED' });
   }
 
   /**
-   * 删除提示词
+   * 更新通用提示词
+   */
+  async updateGeneralPrompt(promptId: string, updates: Partial<Prompt>): Promise<Prompt> {
+    const url = new URL(`${this.baseUrl}/api/general-prompts/${promptId}`);
+
+    const apiKey = this.authManager.getToken();
+    if (apiKey) {
+      url.searchParams.append('key', apiKey);
+    }
+
+    const response = await fetch(url.toString(), {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(updates)
+    });
+
+    if (!response.ok) {
+      throw await this.handleError(response);
+    }
+
+    return await response.json() as Promise<Prompt>;
+  }
+
+  /**
+   * 删除通用提示词
+   */
+  async deleteGeneralPrompt(promptId: string): Promise<void> {
+    const url = new URL(`${this.baseUrl}/api/general-prompts/${promptId}`);
+    const apiKey = this.authManager.getToken();
+    if (apiKey) {
+      url.searchParams.append('key', apiKey);
+    }
+
+    const response = await fetch(url.toString(), {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw await this.handleError(response);
+    }
+  }
+
+  /**
+   * 完成通用库任务 (改为直接删除)
+   */
+  async completeGeneralTask(promptId: string): Promise<void> {
+    console.log('[ApiClient] 删除通用库提示词，promptId:', promptId);
+    return this.deleteGeneralPrompt(promptId);
+  }
+
+  /**
+   * 彻底删除提示词 (项目提示词)
    */
   async deletePrompt(promptId: string): Promise<void> {
     const url = new URL(`${this.baseUrl}/api/prompts/${promptId}`);

@@ -1,5 +1,11 @@
 # PromptVow VSCode Extension Changelog
 
+## [0.1.15] - 2026-01-19
+### Bug修复
+- 🐛 **修复项目切换 Bug**: 解决了在下拉框中选择项目后，视图会自动跳回默认项目的 Bug。
+- 🛠️ **优化匹配逻辑**: 改进了项目 ID 的比对方式，确保数字 ID 与字符串 ID 能够正确匹配。
+
+
 ## [0.1.12] - 2026-01-19
 - 🚀 **自动化发布**: 成功配置 GitHub Actions，现在支持通过 Git Tag 自动发布到 Open VSX 和 VS Code Marketplace。
 - 🛠️ **流程优化**: 简化了发布流程，实现“一次推送，全网同步”。

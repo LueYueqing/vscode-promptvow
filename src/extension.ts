@@ -118,7 +118,7 @@ async function loadDefaultProject(context: vscode.ExtensionContext): Promise<voi
         let resolvedName = projectName;
         if (!resolvedName) {
           const projects = await apiClient.getProjects();
-          const p = projects.find(x => x.id === projectId);
+          const p = projects.find(x => x.id == projectId);
           resolvedName = p?.name;
         }
         await activeProjectProvider.selectProject(projectId, resolvedName || projectId);

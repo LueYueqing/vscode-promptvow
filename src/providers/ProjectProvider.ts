@@ -34,7 +34,7 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
     if (!this.selectedProjectName && this.selectedProjectId) {
       try {
         const projects = await this.apiClient.getProjects();
-        const project = projects.find(p => p.id === projectId);
+        const project = projects.find(p => p.id == projectId);
         if (project) {
           this.selectedProjectName = project.name;
         }

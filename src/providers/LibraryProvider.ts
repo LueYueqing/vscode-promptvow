@@ -80,6 +80,7 @@ export class LibraryProvider implements vscode.WebviewViewProvider {
             await this.apiClient.createGeneralPrompt({
                 title: content.substring(0, 50),
                 content: content,
+                category: '其他', // 添加默认分类，防止后端报错
                 status: 'IN_PROGRESS',
                 tags: ''
             });
@@ -91,7 +92,7 @@ export class LibraryProvider implements vscode.WebviewViewProvider {
 
     private async _handleCompletePrompt(id: string) {
         try {
-            await this.apiClient.completeTask(id);
+            await this.apiClient.completeGeneralTask(id);
             await this.refresh();
         } catch (error: any) {
             vscode.window.showErrorMessage('操作失败: ' + error.message);
@@ -112,7 +113,14 @@ export class LibraryProvider implements vscode.WebviewViewProvider {
         }
         textarea:focus { outline: none; border-color: var(--vscode-focusBorder); }
         
-        .prompt-card { border: 1px solid var(--vscode-widget-border); border-radius: 6px; padding: 10px; margin-bottom: 8px; background: var(--vscode-welcomePage-tileBackground); }
+        .prompt-card { 
+            border: 1px solid var(--vscode-widget-border); 
+            border-radius: 6px; 
+            padding: 10px; 
+            margin-bottom: 8px; 
+            background: var(--vscode-welcomePage-tileBackground);
+            transition: opacity 0.2s ease-out;
+        }
         .prompt-content { 
             font-size: 12px; line-height: 1.4; color: var(--vscode-foreground); margin-bottom: 8px;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -122,6 +130,7 @@ export class LibraryProvider implements vscode.WebviewViewProvider {
         .btn { padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; border: none; }
         .btn-primary { background: var(--vscode-button-background); color: var(--vscode-button-foreground); }
         .btn-secondary { background: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground); }
+        .btn-danger { background: #e51400; color: white; }
 
         .loading { display: none; text-align: center; padding: 10px; color: var(--vscode-descriptionForeground); font-size: 11px; }
         .setup-msg { text-align: center; padding: 20px; color: var(--vscode-descriptionForeground); font-size: 12px; }
@@ -137,11 +146,41 @@ export class LibraryProvider implements vscode.WebviewViewProvider {
         const loading = document.getElementById('loading');
         
         let currentPrompts = [];
+        let currentState = vscode.getState() || {
+            isAuthenticated: false,
+            prompts: [],
+            inputValue: ''
+        };
+
+        // 页面加载时恢复之前的状态
+        if (currentState.isAuthenticated) {
+            renderMain(currentState.isAuthenticated, currentState.prompts);
+            // 恢复输入框内容
+            setTimeout(() => {
+                const input = document.getElementById('libInput');
+                if (input && currentState.inputValue) {
+                    input.value = currentState.inputValue;
+                }
+            }, 100);
+        }
 
         window.addEventListener('message', event => {
             const m = event.data;
             if (m.type === 'render') {
+                currentState = {
+                    isAuthenticated: m.isAuthenticated,
+                    prompts: m.prompts || [],
+                    inputValue: currentState.inputValue // 保留输入框内容
+                };
+                vscode.setState(currentState);
                 renderMain(m.isAuthenticated, m.prompts);
+                // 恢复输入框内容
+                setTimeout(() => {
+                    const input = document.getElementById('libInput');
+                    if (input && currentState.inputValue) {
+                        input.value = currentState.inputValue;
+                    }
+                }, 100);
             } else if (m.type === 'setLoading') {
                 loading.style.display = m.value ? 'block' : 'none';
             }
@@ -164,10 +203,10 @@ export class LibraryProvider implements vscode.WebviewViewProvider {
                 prompts.forEach((p, index) => {
                     html += \`
                         <div class="prompt-card">
-                            <div class="prompt-content">\${escapeHtml(p.content)}</div>
+                            <div class="prompt-content" title="\${escapeHtml(p.content)}">\${escapeHtml(p.content)}</div>
                             <div class="card-footer">
                                 <button class="btn btn-secondary" onclick="copyPrompt(\${index})">复制</button>
-                                <button class="btn btn-primary" onclick="completePrompt('\${p.id}')">完成</button>
+                                <button class="btn btn-secondary" onclick="completePrompt(event, '\${p.id}')">删除</button>
                             </div>
                         </div>
                     \`;
@@ -181,8 +220,18 @@ export class LibraryProvider implements vscode.WebviewViewProvider {
                 input.addEventListener('keydown', e => {
                     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                         const val = input.value.trim();
-                        if (val) { vscode.postMessage({type: 'addPrompt', value: val}); input.value = ''; }
+                        if (val) { 
+                            vscode.postMessage({type: 'addPrompt', value: val}); 
+                            input.value = ''; 
+                            currentState.inputValue = '';
+                            vscode.setState(currentState);
+                        }
                     }
+                });
+                // 保存输入框内容
+                input.addEventListener('input', e => {
+                    currentState.inputValue = e.target.value;
+                    vscode.setState(currentState);
                 });
             }
         }
@@ -192,14 +241,36 @@ export class LibraryProvider implements vscode.WebviewViewProvider {
             if (p) vscode.postMessage({type: 'copyPrompt', value: p.content});
         }
 
-        function completePrompt(id) {
+        function completePrompt(event, id) {
+            const btn = event.target;
+            if (btn.innerText === '删除') {
+                btn.innerText = '确认？';
+                btn.classList.replace('btn-secondary', 'btn-danger');
+                setTimeout(() => {
+                    if (btn && btn.innerText === '确认？') {
+                        btn.innerText = '删除';
+                        btn.classList.replace('btn-danger', 'btn-secondary');
+                    }
+                }, 3000);
+                return;
+            }
+
+            // 乐观更新：立即从界面移除卡片
+            const card = btn ? btn.closest('.prompt-card') : null;
+            if (card) {
+                card.style.opacity = '0.3';
+                card.style.pointerEvents = 'none';
+            }
             vscode.postMessage({type: 'completePrompt', value: id});
         }
 
         function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
     </script>
 </body>

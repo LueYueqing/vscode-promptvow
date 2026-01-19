@@ -2,7 +2,7 @@
   "name": "promptvow",
   "displayName": "PromptVow - AI Prompt Manager",
   "description": "智能管理AI编程提示词，提升编程效率",
-  "version": "0.1.12",
+  "version": "0.1.17",
   "icon": "assets/icons/prompt.png",
   "engines": {
     "vscode": "^1.75.0"
@@ -185,7 +185,11 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "version:patch": "npm version patch",
+    "publish:vsce": "powershell -Command \"$env:VSCE_PAT=(Select-String -Path '../../.env.local' -Pattern 'VISUAL_STUDIO_TOKEN=(.*)' | ForEach-Object { $_.Matches.Groups[1].Value }).Trim(); vsce publish --noVerify\"",
+    "publish:ovsx": "powershell -Command \"$env:OVSX_PAT=(Select-String -Path '../../.env.local' -Pattern 'OVSXAT=(.*)' | ForEach-Object { $_.Matches.Groups[1].Value }).Trim(); ovsx publish\"",
+    "publish:all": "npm run publish:vsce && npm run publish:ovsx"
   },
   "devDependencies": {
     "@types/vscode": "^1.75.0",
