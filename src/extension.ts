@@ -476,7 +476,7 @@ async function selectProject(): Promise<void> {
 
     if (selected) {
       console.log(`User selected project: ${selected.projectName} (${selected.projectId})`);
-      await projectProvider.selectProject(selected.projectId);
+      await projectProvider.selectProject(selected.projectId, selected.projectName);
       vscode.window.showInformationMessage(`已切换到项目: ${selected.projectName}`);
       
       // 保存为默认项目
@@ -493,7 +493,14 @@ async function selectProject(): Promise<void> {
  */
 async function completeTask(prompt: any): Promise<void> {
   if (!authManager.isAuthenticated()) {
-    vscode.window.showWarningMessage('请先进行认证');
+    vscode.window.showWarningMessage(
+      '请先认证以使用此功能',
+      '认证'
+    ).then(selection => {
+      if (selection === '认证') {
+        vscode.commands.executeCommand('promptvow.authenticate');
+      }
+    });
     return;
   }
 
@@ -515,7 +522,14 @@ async function completeTask(prompt: any): Promise<void> {
  */
 async function addPrompt(): Promise<void> {
   if (!authManager.isAuthenticated()) {
-    vscode.window.showWarningMessage('请先进行认证');
+    vscode.window.showWarningMessage(
+      '请先认证以使用此功能',
+      '认证'
+    ).then(selection => {
+      if (selection === '认证') {
+        vscode.commands.executeCommand('promptvow.authenticate');
+      }
+    });
     return;
   }
 

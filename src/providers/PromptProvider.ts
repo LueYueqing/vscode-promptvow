@@ -47,8 +47,21 @@ export class PromptProvider implements vscode.TreeDataProvider<PromptTreeItem> {
       return this.prompts.map(prompt => new PromptTreeItem(prompt));
     } catch (error: any) {
       const errorMessage = error?.message || error?.toString() || 'Unknown error';
-      vscode.window.showErrorMessage(`Failed to load prompts: ${errorMessage}`);
       console.error('Failed to load prompts:', error);
+      
+      // 检查是否是认证相关的错误
+      if (errorMessage.includes('认证') || errorMessage.includes('访问令牌') || errorMessage.includes('401') || errorMessage.includes('403') || errorMessage.includes('unauthorized')) {
+        vscode.window.showWarningMessage(
+          '请先认证以使用此功能',
+          '认证'
+        ).then(selection => {
+          if (selection === '认证') {
+            vscode.commands.executeCommand('promptvow.authenticate');
+          }
+        });
+      } else {
+        vscode.window.showErrorMessage(`Failed to load prompts: ${errorMessage}`);
+      }
       return [];
     }
   }

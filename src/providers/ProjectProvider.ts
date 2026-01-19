@@ -12,6 +12,7 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
 
   private projects: Project[] = [];
   private selectedProjectId: string | null = null;
+  private selectedProjectName: string | null = null;
 
   constructor(private apiClient: ApiClient, private context?: vscode.ExtensionContext) {}
 
@@ -25,8 +26,9 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
   /**
    * 设置选中的项目
    */
-  async selectProject(projectId: string): Promise<void> {
+  async selectProject(projectId: string, projectName?: string): Promise<void> {
     this.selectedProjectId = projectId;
+    this.selectedProjectName = projectName || null;
     this.refresh();
   }
 
@@ -68,11 +70,11 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
       // 构建项目信息项
       const projectInfoItem = new ProjectTreeItem({
         id: 'project-info',
-        title: `📁 当前项目: ${this.selectedProjectId}`,
+        title: `📁 ${this.selectedProjectName || this.selectedProjectId}`,
         content: '点击切换到其他项目',
         isActionItem: true,
         command: 'promptvow.selectProject'
-      }, false, this.selectedProjectId, undefined);
+      }, false, this.selectedProjectId, this.selectedProjectName || undefined);
       
       if (prompts.length === 0) {
         console.log('[ProjectProvider] No prompts found, showing empty message');
@@ -131,6 +133,19 @@ export class ProjectProvider implements vscode.TreeDataProvider<ProjectTreeItem>
       const errorMessage = error?.message || error?.toString() || 'Unknown error';
       console.error('[ProjectProvider] Failed to load project prompts:', error);
       console.error('[ProjectProvider] Error stack:', error?.stack);
+      
+      // 检查是否是认证相关的错误
+      if (errorMessage.includes('认证') || errorMessage.includes('访问令牌') || errorMessage.includes('401') || errorMessage.includes('403') || errorMessage.includes('unauthorized')) {
+        vscode.window.showWarningMessage(
+          '请先认证以使用此功能',
+          '认证'
+        ).then(selection => {
+          if (selection === '认证') {
+            vscode.commands.executeCommand('promptvow.authenticate');
+          }
+        });
+      }
+      
       return [
         new ProjectTreeItem({
           id: 'error',

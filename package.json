@@ -2,7 +2,7 @@
   "name": "promptvow",
   "displayName": "PromptVow - AI Prompt Manager",
   "description": "智能管理AI编程提示词，提升编程效率",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "engines": {
     "vscode": "^1.75.0"
   },
@@ -101,11 +101,11 @@
     "viewsWelcome": [
       {
         "view": "promptvow.prompts",
-        "contents": "Connect to PromptVow to see your projects."
+        "contents": "Welcome to PromptVow!\n\n[Authenticate](command:promptvow.authenticate) to connect your account and manage your projects."
       },
       {
         "view": "promptvow.projects",
-        "contents": "No prompts found. [Create one](command:promptvow.openPromptEditor) or [Authenticate](command:promptvow.authenticate) first."
+        "contents": "Welcome to PromptVow!\n\n[Authenticate](command:promptvow.authenticate) to connect your account and manage your prompts."
       }
     ],
     "keybindings": [
@@ -123,11 +123,6 @@
     ],
       "menus": {
       "view/title": [
-          {
-            "command": "promptvow.selectProject",
-            "when": "view == promptvow.prompts",
-            "group": "navigation"
-          },
           {
             "command": "promptvow.addPrompt",
             "when": "view == promptvow.prompts",
