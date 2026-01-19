@@ -2,7 +2,7 @@
   "name": "promptvow",
   "displayName": "PromptVow - AI Prompt Manager",
   "description": "智能管理AI编程提示词，提升编程效率",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "icon": "assets/icons/prompt.png",
   "homepage": "https://promptvow.com",
   "engines": {
