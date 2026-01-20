@@ -64,6 +64,9 @@ export class ActiveProjectProvider implements vscode.WebviewViewProvider {
                 case 'refresh':
                     await this.refresh();
                     break;
+                case 'openUrl':
+                    vscode.env.openExternal(vscode.Uri.parse(data.value));
+                    break;
             }
         });
 
@@ -192,6 +195,14 @@ export class ActiveProjectProvider implements vscode.WebviewViewProvider {
         .btn-danger { background: #e51400; color: white; }
 
         .loading { display: none; text-align: center; padding: 10px; color: var(--vscode-descriptionForeground); font-size: 11px; }
+
+        a { color: var(--vscode-textLink-foreground); text-decoration: none; word-break: break-all; }
+        a:hover { text-decoration: underline; }
+        
+        .prompt-card.selected {
+            border-color: var(--vscode-focusBorder);
+            background-color: var(--vscode-list-inactiveSelectionBackground);
+        }
     </style>
 </head>
 <body>
@@ -211,7 +222,8 @@ export class ActiveProjectProvider implements vscode.WebviewViewProvider {
             projects: [],
             selectedId: null,
             prompts: [],
-            inputValue: ''
+            inputValue: '',
+            selectedCardId: null
         };
 
         // 页面加载时恢复之前的状态
@@ -235,7 +247,8 @@ export class ActiveProjectProvider implements vscode.WebviewViewProvider {
                     projects: m.projects || [],
                     selectedId: m.selectedId,
                     prompts: m.prompts || [],
-                    inputValue: currentState.inputValue // 保留输入框内容
+                    inputValue: currentState.inputValue, // 保留输入框内容
+                    selectedCardId: currentState.selectedCardId
                 };
                 vscode.setState(currentState);
                 renderAuth(m.isAuthenticated);
@@ -280,8 +293,10 @@ export class ActiveProjectProvider implements vscode.WebviewViewProvider {
                 
                 prompts.forEach((p, index) => {
                     html += \`
-                        <div class="prompt-card">
-                            <div class="prompt-content" title="\${escapeHtml(p.content)}">\${escapeHtml(p.content)}</div>
+                        <div class="prompt-card" id="card-\${p.id}" onclick="selectCard('\${p.id}')">
+
+                            <div class="prompt-content" title="\${escapeHtml(p.content)}">\${formatWithLinks(p.content)}</div>
+
                             <div class="card-footer">
                                 <button class="btn btn-secondary" onclick="copyPrompt(\${index})">复制</button>
                                 <button class="btn btn-primary" onclick="completePrompt(event, '\${p.id}')">完成</button>
@@ -292,6 +307,11 @@ export class ActiveProjectProvider implements vscode.WebviewViewProvider {
             }
 
             mainArea.innerHTML = html;
+
+            if (currentState.selectedCardId) {
+                const el = document.getElementById('card-' + currentState.selectedCardId);
+                if (el) el.classList.add('selected');
+            }
 
             const input = document.getElementById('promptInput');
             if (input) {
@@ -346,6 +366,33 @@ export class ActiveProjectProvider implements vscode.WebviewViewProvider {
         function saveToken() {
             const val = document.getElementById('keyInput').value.trim();
             if (val) vscode.postMessage({type: 'saveToken', value: val});
+        }
+
+        function selectCard(id) {
+            document.querySelectorAll('.prompt-card').forEach(e => e.classList.remove('selected'));
+            const el = document.getElementById('card-' + id);
+            if (el) el.classList.add('selected');
+            
+            currentState.selectedCardId = id;
+            vscode.setState(currentState);
+        }
+
+        function openUrl(url) {
+            if (url) vscode.postMessage({type: 'openUrl', value: url});
+        }
+
+        function formatWithLinks(text) {
+            if (!text) return '';
+            // URL regex
+            const urlRegex = /(https?:\\/\\/[^\\s]+)/g;
+            return text.split(urlRegex).map(part => {
+                if (part.match(/^https?:\\/\\//)) {
+                    const safeUrl = escapeHtml(part);
+                    const jsUrl = safeUrl.replace(/'/g, "\\\\'"); 
+                    return \`<a href="javascript:void(0)" onclick="openUrl('\${jsUrl}')">\${safeUrl}</a>\`;
+                }
+                return escapeHtml(part);
+            }).join('');
         }
 
         function escapeHtml(text) {
