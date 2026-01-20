@@ -1,7 +1,7 @@
 {
   "name": "promptvow",
   "displayName": "PromptVow - AI Prompt Manager",
-  "description": "智能管理AI编程提示词，提升编程效率",
+  "description": "Intelligently manage AI programming prompts to improve coding efficiency",
   "version": "0.1.20",
   "icon": "assets/icons/prompt.png",
   "homepage": "https://promptvow.com",
@@ -77,6 +77,11 @@
       {
         "command": "promptvow.handleSelectProjectClick",
         "title": "Select Project"
+      },
+      {
+        "command": "promptvow.resetApiKey",
+        "title": "Change API Key",
+        "icon": "$(key)"
       }
     ],
     "viewsContainers": {
@@ -92,13 +97,8 @@
       "promptvow-container": [
         {
           "type": "webview",
-          "id": "promptvow.activeProject",
-          "name": "Active Project"
-        },
-        {
-          "type": "webview",
-          "id": "promptvow.library",
-          "name": "Prompts Library"
+          "id": "promptvow.mainView",
+          "name": "PromptVow"
         }
       ]
     },
@@ -119,18 +119,13 @@
     "menus": {
       "view/title": [
         {
-          "command": "promptvow.addPrompt",
-          "when": "view == promptvow.prompts",
+          "command": "promptvow.refreshPrompts",
+          "when": "view == promptvow.mainView",
           "group": "navigation"
         },
         {
-          "command": "promptvow.refreshPrompts",
-          "when": "view == promptvow.prompts",
-          "group": "navigation"
-        },
-        {
-          "command": "promptvow.refreshPrompts",
-          "when": "view == promptvow.activeProject || view == promptvow.library",
+          "command": "promptvow.resetApiKey",
+          "when": "view == promptvow.mainView",
           "group": "navigation"
         }
       ],
@@ -149,18 +144,10 @@
         {
           "command": "promptvow.saveSelectionAsPrompt",
           "when": "editorHasSelection"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "promptvow.copyPrompt",
-          "when": "view == promptvow.library && viewItem == prompt",
-          "group": "promptvow@1"
         },
         {
-          "command": "promptvow.completeTask",
-          "when": "view == promptvow.library && viewItem == prompt",
-          "group": "promptvow@2"
+          "command": "promptvow.resetApiKey",
+          "title": "PromptVow: Change API Key"
         }
       ]
     }
@@ -171,12 +158,12 @@
       "promptvow.apiUrl": {
         "type": "string",
         "default": "https://promptvow.com",
-        "description": "PromptVow API 地址"
+        "description": "PromptVow API Address"
       },
       "promptvow.apiKey": {
         "type": "string",
         "default": "",
-        "description": "API 密钥（从 PromptVow 网站获取）"
+        "description": "API Key (Get from PromptVow website)"
       }
     }
   },
