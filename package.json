@@ -2,7 +2,7 @@
   "name": "promptvow",
   "displayName": "PromptVow - AI Prompt Manager",
   "description": "Intelligently manage AI programming prompts to improve coding efficiency",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "icon": "assets/icons/prompt.png",
   "homepage": "https://promptvow.com",
   "engines": {
